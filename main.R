@@ -27,17 +27,11 @@ source("fun/goveqs_basis.R")
 source("fun/scale_up.R")
 source("fun/allocate_parameters.R")
 source("fun/make_model.R")
-source("fun/Make_distr_fns.R")
 source("fun/return_output.R")
 source("fun/plot_targets.R")
 source("fun/get_input.R")
 source("fun/sim_pack_intervention.R")
 source("fun/plot_sim_intv.R")
-
-# source("fun/get_interventions.R")
-# source("fun/make_intervention.R")
-
-
 
 sourceCpp("fun/compute_dx.cpp")
 sourceCpp("fun/scale_matrix.cpp")
@@ -110,20 +104,17 @@ agg <- input$agg
 
 gps <- input$gps
 datapoints <- input$datapoints
-lhd <- input$lhd
+lsq <- input$lhd
 #__________________________________________________________________________
 #  Create instances of model functions
 #__________________________________________________________________________
 
-obj       <-
-  function(x)
-    get_objective(x, prm, ref, sel, agg, gps, lhd, FALSE)
-obj_spx   <-
-  function(x)
-    - get_objective(x, prm, ref, sel, agg, gps, lhd)
-obj_mcmc  <-
-  function(x)
-    get_objective(x, prm, ref, sel, agg, gps, lhd)
+obj       <-  function(x)
+  get_objective(x, prm, ref, sel, agg, gps, lsq, FALSE)
+obj_spx   <-  function(x)
+  - get_objective(x, prm, ref, sel, agg, gps, lsq)
+obj_mcmc  <-  function(x)
+  get_objective(x, prm, ref, sel, agg, gps, lsq)
 
 
 #Random draw of parameters
@@ -149,13 +140,12 @@ if (strcmp(action, "simplex")) {
   }
   fminsearch <- neldermead::fminsearch
   opt <- optimset(TolX = 1.e-2,  Display = "iter")
-  x1 <- fminsearch(fun = obj_spx,
-                   x0 = x,
+  x1 <- fminsearch(fun = obj_spx,                   x0 = x,
                    options = opt)
   x  <- x1$optbase$xopt
   #
-  filename <- paste("res/", "bestset", "_", location, "_", "mle", sep =
-                      "")
+  filename <- paste("res/", "bestset", "_", location, "_", "mle", 
+                    sep ="")
   saveRDS(x, filename)
   runs <- return_output(obj, x, ref, location, c())
   

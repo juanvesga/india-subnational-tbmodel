@@ -20,8 +20,9 @@ get_input<-function(location){
   datapoints<-data[location,]
   
   # Create likelihood distributions for datapoints
-  lhd<-Make_distr_fns(datapoints,1)
-  
+  # Uncomment below for likelihood method
+  # lhd<-Make_distr_fns(datapoints,1)
+  lhd<-datapoints
   #__________________________________________________________________________
   #  Build model structure
   #__________________________________________________________________________

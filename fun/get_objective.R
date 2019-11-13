@@ -162,16 +162,19 @@ get_objective <- function (x, prm, ref, sel, agg, gps, calfn, LLK=TRUE){
   #Model output to fit to data
   model<-c(prev_all, inc_all,prev_hi, inc_hi,notif,pr_notif_pe,pr_notif_mdr)
   
-  llk<-c(1:length(model))*0
-  for (l in 1:length(model)){
-    
-    llk[l]<-as.numeric(lhd[[l]](model[l]))
-    if(is.nan( llk[l])){ llk[l]<-0}
-    
-  }
+  llksum<-  sum( (lsq - model)^2 )
   
-  
-  llksum<-sum(llk)
+  # Uncomment for Likelihood method 
+  # llk<-c(1:length(model))*0
+  # for (l in 1:length(model)){
+  #   
+  #   llk[l]<-as.numeric(lhd[[l]](model[l]))
+  #   if(is.nan( llk[l])){ llk[l]<-0}
+  #   
+  # }
+  # 
+  # 
+  # llksum<-sum(llk)
   
   if (is.na(llksum)){
     llksum<- -Inf
