@@ -256,6 +256,7 @@ get_input<-function(location){
   p$kappa         <- 1
   r$selfcure  <- 0
   r$relapse   <- c(0.032, 0.14, 0.0015)
+  r$r_stable  <-0.5
   r$mort_TB   <- 1/6
   p$Fast      <- c(0.035, 0.084, 0.087)
   p$imm       <- 0.5
@@ -268,7 +269,7 @@ get_input<-function(location){
   else{
     p$strd_pr<-0.5
   }
-  
+  browser()
   p$pu <- 0
   p$pse<- 0
   r$Dx <- 52

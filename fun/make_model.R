@@ -437,7 +437,7 @@ make_model<-function(p, r, i, i_all, s, gps){
       
       sources <- c(Rlo, Rhi)
       destin  <- R
-      rates   <- 0.5
+      rates   <- r$r_stable
       m[destin, sources] <- m[destin, sources] + rates
       
       
