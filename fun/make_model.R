@@ -353,8 +353,8 @@ make_model<-function(p, r, i, i_all, s, gps){
           ((ispu)   * (1-p$xpert_upf[ip]) * p$smear_sens)
         
         Dx_alg_sl <- DxTxrate * (ismdr  * p$xpert_upf[ip]  * p$xpert_sens) + 
-          (ismdr  * (1-ispu) * (1-p$xpert_upf[ip]) * p$xray_sens * p$xpert_upf[ip] * p$xpert_sens) +
-          (ismdr  *   (ispu) * (1-p$xpert_upf[ip]) * p$smear_sens* p$xpert_upf[ip] * p$xpert_sens)
+          (ismdr  * (1-ispu) * (1-p$xpert_upf[ip]) * p$xray_sens * p$xpert_fup[ip] * p$xpert_sens) +
+          (ismdr  *   (ispu) * (1-p$xpert_upf[ip]) * p$smear_sens* p$xpert_fup[ip] * p$xpert_sens)
         
         
            
