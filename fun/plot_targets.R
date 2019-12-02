@@ -1,5 +1,6 @@
 plot_targets<-function (runs,datapoints,location){
-  
+  library(ggplot2)
+  library(gridExtra)
   
   x<-seq(2018-size(runs$popu,2),2017,by=1)
   labels<-names(datapoints) 
@@ -16,7 +17,7 @@ plot_targets<-function (runs,datapoints,location){
   }
   
   fs<-11
-
+  
   red <- c(216, 23, 37)/ 255
   grey=c(0.9,0.9,0.9)
   lw<-1
@@ -52,13 +53,15 @@ plot_targets<-function (runs,datapoints,location){
     plots[[ii]]<-p
     
   }
+  
+  grid.arrange(plots[[1]],plots[[2]],plots[[3]],plots[[4]],plots[[5]],plots[[6]],nrow=3)
+  
   filename<-paste("plots/","fits","_",location,"_","mle",".jpeg",sep="")
-
   jpeg(file=filename)
   
   grid.arrange(plots[[1]],plots[[2]],plots[[3]],plots[[4]],plots[[5]],plots[[6]],nrow=3)
   
   dev.off()
   
-  }
+}
 

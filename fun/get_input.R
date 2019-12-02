@@ -1,5 +1,5 @@
 
-get_input<-function(location){
+get_input<-function(){
   
   
   
@@ -8,21 +8,21 @@ get_input<-function(location){
   #__________________________________________________________________________
   
   # Load Data
-  tmp      <-as.data.frame(read_excel("data/data.xlsx"))
-  rownames(tmp)<-tmp[,1]  
-  
-  # All data including targets and input data 
-  data_raw<-tmp[,-1]
-  
-  # Model fitting data only
-  drops <- c('stdard_pr',	'size_hirisk',	'tsr_fl',	'tsr_sl', 'popN')
-  data<-data_raw[location , !(names(data_raw) %in% drops)]
-  datapoints<-data[location,]
+  # tmp      <-as.data.frame(read_excel("data/data.xlsx"))
+  # rownames(tmp)<-tmp[,1]  
+  # 
+  # # All data including targets and input data 
+  # data_raw<-tmp[,-1]
+  # 
+  # # Model fitting data only
+  # drops <- c('stdard_pr',	'size_hirisk',	'tsr_fl',	'tsr_sl', 'popN')
+  # data<-data_raw[location , !(names(data_raw) %in% drops)]
+  # datapoints<-data[location,]
   
   # Create likelihood distributions for datapoints
   # Uncomment below for likelihood method
   # lhd<-Make_distr_fns(datapoints,1)
-  lhd<-datapoints
+  #lhd<-datapoints
   #__________________________________________________________________________
   #  Build model structure
   #__________________________________________________________________________
@@ -263,13 +263,13 @@ get_input<-function(location){
   p$crossg    <- 0.3
   
   # Diagnosis stage
-  p$strd_pr <-0
-  if(strcmp(data_raw[location,'stdard_pr'],'good')){
+  p$strd_pr <-'poor'
+  if(strcmp(p$strd_pr,'good')){
     p$strd_pr<-1}
   else{
     p$strd_pr<-0.5
   }
-  browser()
+ 
   p$pu <- 0
   p$pse<- 0
   r$Dx <- 52
@@ -290,7 +290,7 @@ get_input<-function(location){
   
   # Treatment stage
   r$Tx <- 2
-  p$pdef <- (1-data_raw[location,'tsr_fl'])*c(1, 1.75, 1.75)
+  p$pdef <-(1-0.6)*c(1, 1.75, 1.75)# (1-data_raw[location,'tsr_fl'])*c(1, 1.75, 1.75)
   r$default <- r$Tx*p$pdef/(1-p$pdef)
   p$cure      <- c(1, 1, 1)
   
@@ -299,7 +299,7 @@ get_input<-function(location){
   p$SL_trans <-c(0.8, 0, 0) # Transfer from FL
   r$Tx2      <-0.5
   p$newmol   <- 0 #Fraction recieving new molecuiles for their SL treatment
-  p$pdef2 <- (1-data_raw[location,'tsr_sl'])*c(1, 1.75, 1.75) 
+  p$pdef2 <- (1-0.5)*c(1, 1.75, 1.75)#(1-data_raw[location,'tsr_sl'])*c(1, 1.75, 1.75) 
   r$default2 <- r$Tx2*p$pdef2/(1-p$pdef2)
   p$cure2    <- c(0.5, 0, 0)
   
@@ -309,11 +309,11 @@ get_input<-function(location){
   r$mort     <- 1/lex #[(0.0253+	1.0000e-03)/2	(0.0065+	0.0933)/2];%[ 1/lex 1/(lex-15) 1/(lex-65)];    % Non-disease-related mortality
   p$growth   <- 0     #pars{location,'growth'};
   p$frac_pop <- c(0.0910+0.1824	, 0.6643+0.0623) #	Population fraction <15 2016;
-  p$hi       <- data_raw[location,'size_hirisk'] # size of the vulnerable population
+  p$hi       <- 0.1#data_raw[location,'size_hirisk'] # size of the vulnerable population
   r$wloss    <- 0.5 # Rate of 2 years fro untreated TBG to move from normal BMI to malnourished
   p$resp_symptomatic<-0.045 # Fraction Respiratoty symnptomatic (From kenya survey (eligible only by symptoms)(TB survey)
   #p$slum<-strcmp(data_raw[location,'setting'],'slum')
-  p$popN<-data_raw[location,'popN']
+  p$popN<-124233985#data_raw[location,'popN']
   
   #intervs
   r$acf_asym<-c(0, 0)
@@ -356,7 +356,7 @@ get_input<-function(location){
   ref$s_all<-ref_all$s
   ref$xi<-xi
   
-  return(list(prm=prm, ref=ref, lhd=lhd, sel=sel, agg=agg, gps=gps, datapoints=datapoints))
+  return(list(prm=prm, ref=ref, sel=sel, agg=agg, gps=gps))
   
   
 }

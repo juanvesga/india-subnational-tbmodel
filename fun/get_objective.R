@@ -1,4 +1,4 @@
-get_objective <- function (x, prm, ref, sel, agg, gps, calfn, LLK=TRUE){
+get_objective <- function (x, prm, ref, sel, agg, gps, data, LLK=TRUE){
   
   r <- prm$r; p <- prm$p 
   i <- ref$i    ; s <- ref$s
@@ -19,7 +19,7 @@ get_objective <- function (x, prm, ref, sel, agg, gps, calfn, LLK=TRUE){
   
   if ((min(tmp)<0)==TRUE){
     #   
-    llk<- -Inf
+    llk<- Inf
     return(llk)
     #   
   }
@@ -161,8 +161,8 @@ get_objective <- function (x, prm, ref, sel, agg, gps, calfn, LLK=TRUE){
   
   #Model output to fit to data
   model<-c(prev_all, inc_all,prev_hi, inc_hi,notif,pr_notif_pe,pr_notif_mdr)
-  
-  llksum<-  sum( (lsq - model)^2 )
+
+  llksum<-  sum( (data - model)^2 )
   
   # Uncomment for Likelihood method 
   # llk<-c(1:length(model))*0
@@ -177,7 +177,7 @@ get_objective <- function (x, prm, ref, sel, agg, gps, calfn, LLK=TRUE){
   # llksum<-sum(llk)
   
   if (is.na(llksum)){
-    llksum<- -Inf
+    llksum<- Inf
   }
   
   
