@@ -98,7 +98,8 @@ return_output<-function(fx,x,ref,location,varargin){
   }
   res$burn<-burn
   res$thin<-thin
-  filename<-paste("res/","output","_",location,"_",runtype,sep="")
+ 
+   filename<-paste("res/","output","_",location,"_",runtype,sep="")
   saveRDS(res,filename)
   
   return(res)

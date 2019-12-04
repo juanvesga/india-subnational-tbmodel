@@ -6,7 +6,6 @@ sim_pack_intervention <-
             sel,
             agg,
             gps,
-            location,
             varargin) {
     
     itv <- prm$itv
@@ -23,33 +22,7 @@ sim_pack_intervention <-
     runtype <- 'mle'
     
     
-    res <- vector("list", 10)
-    res[[1]] <- array(0, c((2025 - 2017), 2))
-    res[[2]] <- array(0, c((2025 - 2017), 2))
-    
-    res[[3]] <- matrix(0, 1)
-    res[[4]] <- matrix(0, 1)
-    res[[5]] <- matrix(0, 1)
-    res[[6]] <- matrix(0, 1)
-    res[[7]] <- matrix(0, 1)
-    res[[8]] <- matrix(0, 1)
-    res[[9]] <- matrix(0, 1)
-    res[[10]] <- matrix(0, 1)
-    
-    
-    names(res) <- c(
-      'inc' ,
-      'mort',
-      'inc_av_pr' ,
-      'mort_av_pr',
-      'ic_fl',
-      'ic_sl',
-      'ic_sm',
-      'ic_xp',
-      'ic_xr',
-      'icr_all'
-    )
-    
+   
     
     x0 <- xvals
     tmp <- allocate_parameters(x0, r, p, xi)
@@ -189,10 +162,12 @@ sim_pack_intervention <-
     tmp <- colSums(sl_pmo)
     incr_sl <- (tmp[2] - tmp[1]) * p$u_slmo
     
+    res <- list()
     
-    
-    res$inc <- as.numeric(inc_rate)
-    res$mort <- as.numeric(mort_rate)
+    res$inc_base <- as.numeric(inc_rate[,1])
+    res$inc_itv <- as.numeric(inc_rate[,2])
+    res$mort_base <- as.numeric(mort_rate[,1])
+    res$mort_itv <- as.numeric(mort_rate[,2])
     res$inc_av_pr <- as.numeric(inc_av_pr)
     res$mort_av_pr <- as.numeric(mort_av_pr)
     res$ic_fl  <- as.numeric(incr_fl)

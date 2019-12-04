@@ -1,5 +1,6 @@
 
-Simulate <- function(params,    # set of best fit parameters
+Simulate <- function(input_data,# characteristics of the district 
+                     params,    # set of best fit parameters
                      sfin,      # Values to initialise State Variables 
                      pdef,      # FL completion rates
                      pdef2,     # SL completion rates
@@ -14,37 +15,10 @@ Simulate <- function(params,    # set of best fit parameters
                      acfhi,     # Prportion of slum population reached
                      xray_acf,  # ACF screening by Xray =1 ; Verbally =0;
                      xpert_acf, # Confirmation by Xpert =1 ; smear =0;
-                     acf_loss,  # Operational losses on expected yield
-                     district = 'Bihar_urb'  # string with name of the district , set Urban Bihar as defaut
+                     acf_loss  # Operational losses on expected yield
 ) {
   
-  #__________________________________________________________________________
-  #
-  #  LOAD LIBRARIES AND SOURCE FUNCTIONS
-  #__________________________________________________________________________
-  library(Matrix)
-  library(deSolve)
-  library(pracma)
-  library(neldermead)
-  library(profvis)
-  library(Rcpp)
-  library(abind)
-  
-  source("fun/get_addresses.R")
-  source("fun/get_objective.R")
-  source("fun/goveqs_basis.R")
-  source("fun/scale_up.R")
-  source("fun/allocate_parameters.R")
-  source("fun/make_model.R")
-  source("fun/return_output.R")
-  source("fun/get_input.R")
-  source("fun/sim_pack_intervention.R")
-  
-  
-  sourceCpp("fun/compute_dx.cpp")
-  sourceCpp("fun/scale_matrix.cpp")
-  
-  
+
   #__________________________________________________________________________
   #  Select Intervention parameters
   #__________________________________________________________________________
@@ -86,7 +60,7 @@ Simulate <- function(params,    # set of best fit parameters
   
   
   # Call all model fixed parameters required
-  input <- get_input()
+  input <- get_input(input_data)
   prm <- input$prm
   ref <- input$ref
   prm$itv <- itv
@@ -99,30 +73,30 @@ Simulate <- function(params,    # set of best fit parameters
   #__________________________________________________________________________
   #  Execute simulation of intervention
   #__________________________________________________________________________
-  itvs <-sim_pack_intervention(params, sfin, prm, ref, sel, agg, gps, district, c())
+  itvs <-sim_pack_intervention(params, sfin, prm, ref, sel, agg, gps, c())
   
   # save results
-  file <- paste("res/", "sim", "_", district,sep ="")
-  saveRDS(itvs, file) 
+  # file <- paste("res/", "sim", "_", district,sep ="")
+  # saveRDS(itvs, file) 
   
   
   #Print out results
-  yrs<-c(2018:2025)
-  incidence=itvs$inc
-  mortality=itvs$mort
-  out1<-as.data.frame(cbind(yrs,incidence,mortality))
-  print(out1)
-  
-  icr_fl<-itvs$ic_fl
-  icr_sl<-itvs$ic_sl
-  icr_sm<-itvs$ic_sm
-  icr_xpert<-itvs$ic_xp
-  icr_xray<-itvs$ic_xr
-  icr_total<-itvs$icr_all
-  
-  out2<-as.data.frame(cbind(icr_fl,icr_sl,icr_sm,icr_xpert,icr_xray,icr_total))
-  print(out2)
-  
+  # yrs<-c(2018:2025)
+  # incidence=itvs$inc
+  # mortality=itvs$mort
+  # out1<-as.data.frame(cbind(yrs,incidence,mortality))
+  # print(out1)
+  # 
+  # icr_fl<-itvs$ic_fl
+  # icr_sl<-itvs$ic_sl
+  # icr_sm<-itvs$ic_sm
+  # icr_xpert<-itvs$ic_xp
+  # icr_xray<-itvs$ic_xr
+  # icr_total<-itvs$icr_all
+  # 
+  # out2<-as.data.frame(cbind(icr_fl,icr_sl,icr_sm,icr_xpert,icr_xray,icr_total))
+  # print(out2)
+  # 
   # return object with simulation output
   return(itvs) 
   

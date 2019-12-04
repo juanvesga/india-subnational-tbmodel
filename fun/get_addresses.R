@@ -91,8 +91,8 @@ get_addresses<- function (groups, i, s, lim){
     }
   }
   
- 
-
+  
+  
   i$nstates<-lim
   return(list(s=s, i=i))
 }

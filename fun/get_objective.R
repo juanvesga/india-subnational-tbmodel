@@ -160,10 +160,11 @@ get_objective <- function (x, prm, ref, sel, agg, gps, data, LLK=TRUE){
   mort  <- 1e5*(tmp[nrow(tmp)]/N)
   
   #Model output to fit to data
-  model<-c(prev_all, inc_all,prev_hi, inc_hi,notif,pr_notif_pe,pr_notif_mdr)
-
-  llksum<-  sum( (data - model)^2 )
+  # model<-c(prev_all, inc_all,prev_hi, inc_hi,notif,pr_notif_pe,pr_notif_mdr)
+  model<-c(prev_all, inc_all,notif,pr_notif_pe,pr_notif_mdr)
   
+  llksum<-  sum( (data - model)^2 )
+
   # Uncomment for Likelihood method 
   # llk<-c(1:length(model))*0
   # for (l in 1:length(model)){

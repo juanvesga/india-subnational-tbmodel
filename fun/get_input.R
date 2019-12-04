@@ -1,28 +1,9 @@
 
-get_input<-function(){
+get_input<-function(input_data){
   
   
   
-  #__________________________________________________________________________
-  #  Load data & Call distributions for lhd
-  #__________________________________________________________________________
-  
-  # Load Data
-  # tmp      <-as.data.frame(read_excel("data/data.xlsx"))
-  # rownames(tmp)<-tmp[,1]  
-  # 
-  # # All data including targets and input data 
-  # data_raw<-tmp[,-1]
-  # 
-  # # Model fitting data only
-  # drops <- c('stdard_pr',	'size_hirisk',	'tsr_fl',	'tsr_sl', 'popN')
-  # data<-data_raw[location , !(names(data_raw) %in% drops)]
-  # datapoints<-data[location,]
-  
-  # Create likelihood distributions for datapoints
-  # Uncomment below for likelihood method
-  # lhd<-Make_distr_fns(datapoints,1)
-  #lhd<-datapoints
+ 
   #__________________________________________________________________________
   #  Build model structure
   #__________________________________________________________________________
@@ -263,8 +244,8 @@ get_input<-function(){
   p$crossg    <- 0.3
   
   # Diagnosis stage
-  p$strd_pr <-'poor'
-  if(strcmp(p$strd_pr,'good')){
+  p$strd_pr <- 0
+  if(strcmp(input_data$stdard_pr,'good')){
     p$strd_pr<-1}
   else{
     p$strd_pr<-0.5
@@ -286,7 +267,7 @@ get_input<-function(){
   p$smear<-c(0.8 , 0, 0)   #prob of microscopy by sector
   p$xray <-c(0,1,1)          #prob of Xray as Dx upfront
   p$xpert_upf<-c(0.2,0,0)  #prob of xpert upfront
-  p$xpert_fup<-c(0.1,0,0)  #prob of xpert follow-up aas confirmaion of smear
+  p$xpert_fup<-c(input_data$xpert_fup,0,0)  #prob of xpert follow-up aas confirmaion of smear
   
   # Treatment stage
   r$Tx <- 2
@@ -309,7 +290,7 @@ get_input<-function(){
   r$mort     <- 1/lex #[(0.0253+	1.0000e-03)/2	(0.0065+	0.0933)/2];%[ 1/lex 1/(lex-15) 1/(lex-65)];    % Non-disease-related mortality
   p$growth   <- 0     #pars{location,'growth'};
   p$frac_pop <- c(0.0910+0.1824	, 0.6643+0.0623) #	Population fraction <15 2016;
-  p$hi       <- 0.1#data_raw[location,'size_hirisk'] # size of the vulnerable population
+  p$hi       <- input_data$size_hirisk #data_raw[location,'size_hirisk'] # size of the vulnerable population
   r$wloss    <- 0.5 # Rate of 2 years fro untreated TBG to move from normal BMI to malnourished
   p$resp_symptomatic<-0.045 # Fraction Respiratoty symnptomatic (From kenya survey (eligible only by symptoms)(TB survey)
   #p$slum<-strcmp(data_raw[location,'setting'],'slum')
