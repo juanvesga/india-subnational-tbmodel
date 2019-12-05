@@ -46,16 +46,18 @@ for (ii in 1:nrow(fulldata)){
   district<-fulldata[ii,2]
   
   # Get dto inputs
-  input_data<-fulldata[ii,-c(1,2)]
+  X_Y0<-fulldata[ii,-c(1,2)]
   
-  # Call calibration function 
-  x<-Calibration(input_data, state, district)
+  # Call calibration function (C)
+  # Note: If a prevoius calibration (Y0) exists function C will retrieve it and 
+  # use it as starting parameters
+  C<-Calibration(X_Y0, state, district)
   
   
   # Save parameters 
-  xin<-data.frame(t(x$x))
+  Y1<-data.frame(t(C$x))
   wb<-loadWorkbook("data/Single_row.xlsx")
-  writeData(wb, "Y", xin, startCol = 3, startRow = 2, colNames = FALSE)
+  writeData(wb, "Y", Y1, startCol = 3, startRow = 2, colNames = FALSE)
   
   # Save workbook
   saveWorkbook(wb, "data/Single_row.xlsx", overwrite = TRUE)
@@ -67,22 +69,24 @@ for (ii in 1:nrow(fulldata)){
 ##- 2) Run interventions
 ##-----------------------------------------------------------------
 # Load previously saved values (Y) to initialize State variables
-x0<-as.data.frame(read_excel("data/Single_row.xlsx", sheet = "Y"))
+Y<-as.data.frame(read_excel("data/Single_row.xlsx", sheet = "Y"))
 
 for (ii in 1:nrow(fulldata)){
   state<-fulldata[ii,1]
   district<-fulldata[ii,2]
-  bestset<-as.numeric(x0[ii,-c(1,2)])
+  Y1<-as.numeric(Y[ii,-c(1,2)])
   
   # Get dto inputs
-  input_data<-fulldata[ii,-c(1,2)]
+  X<-fulldata[ii,-c(1,2)]
   
   # Call intervention function "Simulate"
   sims<-
     Simulate (
-      input_data, #  District base characteristics
-      bestset,   # set of best fit parameters
+      X, #  District base characteristics
+      Y1,   # set of best fit parameters
       c(),       # Values to initialise State Variables (leave empty-optional) 
+      
+      # ALL Values belwo correspont to I
       0.95,      # FL completion rates
       0.75,      # SL completion rates
       0.5,       # probability xpert upfront
@@ -101,9 +105,9 @@ for (ii in 1:nrow(fulldata)){
   
   # Save results (Z)
   tmp<-c(sims$inc_itv,sims$mort_itv,sims$ic_fl,sims$ic_sl,sims$ic_sm,sims$ic_xp,sims$ic_xr,sims$icr_all)
-  results<-data.frame(t(tmp))
+  Z<-data.frame(t(tmp))
   wb<-loadWorkbook("data/Single_row.xlsx")
-  writeData(wb, "Z", results, startCol = 3, startRow = 2, colNames = FALSE)
+  writeData(wb, "Z", Z, startCol = 3, startRow = 2, colNames = FALSE)
   saveWorkbook(wb, "data/Single_row.xlsx", overwrite = TRUE)
   
 }
