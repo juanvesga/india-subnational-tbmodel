@@ -77,10 +77,21 @@ sim_pack_intervention <-
     Mset[[2]] <- M1
     
     
-    
+    # Run model pre-2017
+    obj       <-  function(x)
+      get_objective(x, prm, ref, sel, agg, gps, c(), FALSE)
+    if (length(sfin) == 0){
+      
+    runs <- return_output(obj, x, ref)
+    init <- unlist(runs$sfin)
+    }
+    else
+      {
+      init<-unlist(sfin)
+    }
     #run models
     fx <- goveqs_basis
-    init <- unlist(sfin)
+    
     times  <- seq(2017, 2025, by = 1)           # time scale
     intT   <- 3
     t.interv   <- c(times[2], times[2] + intT)

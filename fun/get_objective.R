@@ -163,6 +163,8 @@ get_objective <- function (x, prm, ref, sel, agg, gps, data, LLK=TRUE){
   # model<-c(prev_all, inc_all,prev_hi, inc_hi,notif,pr_notif_pe,pr_notif_mdr)
   model<-c(prev_all, inc_all,notif,pr_notif_pe,pr_notif_mdr)
   
+  if(length(data)==0){data<-model}
+  
   llksum<-  sum( (data - model)^2 )
 
   # Uncomment for Likelihood method 

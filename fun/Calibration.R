@@ -83,7 +83,7 @@ Calibration <- function(input_data , # Vector with data targets points, in this 
   # Run an instance of the model with the current best
   #set of parameters and save results
   
-  runs <- return_output(obj, x, ref, district, c())
+  runs <- return_output(obj, x, ref)
   
   return(list(x=x, sfin=runs$sfin))
 }
