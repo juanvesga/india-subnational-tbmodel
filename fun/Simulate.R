@@ -15,7 +15,8 @@ Simulate <- function(input_data,# characteristics of the district
                      acfhi,     # Prportion of slum population reached
                      xray_acf,  # ACF screening by Xray =1 ; Verbally =0;
                      xpert_acf, # Confirmation by Xpert =1 ; smear =0;
-                     acf_loss  # Operational losses on expected yield
+                     acf_linked,  # Operational losses on expected yield
+                     acf_tx  # Operational losses on expected yield
 ) {
   
 
@@ -53,10 +54,11 @@ Simulate <- function(input_data,# characteristics of the district
   
   
   # ----------5)Active case finding (ACF)
-  itv$acfhi     <- acfhi # Prportion of slum population reached
-  itv$xray_acf  <- xray_acf   # ACF screening by Xray =1 ; Verbally =0;
-  itv$xpert_acf <- xpert_acf   # Confirmation by Xpert =1 ; smear =0;
-  itv$acf_loss  <- acf_loss # Operational losses on expected yield
+  itv$acfhi       <- acfhi # Prportion of slum population reached
+  itv$xray_acf    <- xray_acf   # ACF screening by Xray =1 ; Verbally =0;
+  itv$xpert_acf   <- xpert_acf   # Confirmation by Xpert =1 ; smear =0;
+  itv$acf_linked  <- acf_linked # Operational losses on expected yield
+  itv$acf_tx      <- acf_tx # Operational losses on expected yield
   
   
   # Call all model fixed parameters required

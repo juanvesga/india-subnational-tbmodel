@@ -155,9 +155,12 @@ sim_pack_intervention <-
     smear_n <- diff(allsol[, i$aux$dx[1], ]) * p$popN
     xpert_n <- diff(allsol[, i$aux$dx[2], ]) * p$popN
     xray_n <- diff(allsol[, i$aux$dx[2], ]) * p$popN
+    acf_n <- diff(allsol[, i$aux$acf[1], ]) * p$popN
     fl_pmo <- diff(allsol[, i$aux$pmo[1], ]) * p$popN * 12
     sl_pmo <- diff(allsol[, i$aux$pmo[2], ]) * p$popN * 12
     
+
+    browser()
     tmp <- colSums(smear_n)
     incr_sm <- (tmp[2] - tmp[1]) * p$u_smear
     
@@ -166,6 +169,11 @@ sim_pack_intervention <-
     
     tmp <- colSums(xray_n)
     incr_xr <- (tmp[2] - tmp[1]) * p$u_xray
+    
+    
+    tmp <- colSums(acf_n)
+    incr_acf <- (tmp[2] - tmp[1]) * p$u_acf
+
     
     tmp <- colSums(fl_pmo)
     incr_fl <- (tmp[2] - tmp[1]) * p$u_flmo
@@ -186,7 +194,7 @@ sim_pack_intervention <-
     res$ic_sm  <- as.numeric(incr_sm)
     res$ic_xp  <- as.numeric(incr_xp)
     res$ic_xr  <- as.numeric(incr_xr)
-    res$icr_all <- as.numeric(incr_fl + incr_sl + incr_sm + incr_xp + incr_xr)
+    res$icr_all <- as.numeric(incr_fl + incr_sl + incr_sm + incr_xp + incr_xr + incr_acf)
     
     
     

@@ -6,13 +6,19 @@ library(Matrix)
 library(readxl)
 library(deSolve)
 library(pracma)
-library(neldermead)
+ library(neldermead)
 library(profvis)
 library(Rcpp)
 library(ggplot2)
 library(gridExtra)
 library(abind)
 library(openxlsx)
+library(foreach)
+library(doParallel)
+library(myTBpack)
+library(progress)
+# library(doSNOW)
+# library(bigstatsr)
 
 source("fun/get_addresses.R")
 source("fun/get_distribution_fns.R")
@@ -29,24 +35,49 @@ source("fun/plot_sim_intv.R")
 source("fun/Calibration.R")
 source("fun/Simulate.R")
 source("fun/plot_sim_intv.R")
-sourceCpp("fun/compute_dx.cpp")
-sourceCpp("fun/scale_matrix.cpp")
+
+# sourceCpp("fun/compute_dx.cpp")
+# sourceCpp("fun/scale_matrix.cpp")
 
 #__________________________________________________________________________
 #  Load data 
 #__________________________________________________________________________
-
+file<-"data/district_data.xlsx"
 # Load Data
-fulldata      <-as.data.frame(read_excel("data/Single_row.xlsx"))
-
+fulldata      <-as.data.frame(read_excel(file))
+niter<-nrow(fulldata)
 
 
 ##-----------------------------------------------------------------
 ##- Run calibrations
 ##-----------------------------------------------------------------
 m <- matrix(-99, ncol = 19, nrow = nrow(fulldata))
+q <- matrix(-99, ncol = 106, nrow = nrow(fulldata))
+z <- matrix(0,nrow(fulldata),22 ) #matrix(-99, ncol = 22, nrow = nrow(fulldata))
 
-for (ii in 1:nrow(fulldata)){
+## Loading required package: iterators
+cl <- makeCluster(11)
+registerDoParallel(cl)
+
+
+collect1 <- function(resultx=NULL, resultsfin=NULL)
+{
+  me <- list(
+    resultx = resultx,
+    resultsfin = resultsfin
+    
+  )
+  
+  # Set the name for the class
+  class(me) <- append(class(me),"collect1")
+  return(me)
+}
+
+
+
+ oper1<-foreach(ii = 1:niter,  .packages = c("deSolve","neldermead","pracma","Matrix","readxl","Rcpp", "RcppArmadillo","abind","myTBpack") )%dopar% {
+  # system.time(
+  #  for (ii in 1:1){ 
   
   # Get state and district
   state<-fulldata[ii,1]
@@ -58,38 +89,85 @@ for (ii in 1:nrow(fulldata)){
   # Call calibration function 
   
   x<-Calibration(input_data, state, district)
+  results<-collect1()
+  results$resultx   <-as.numeric(x$x)
+  results$resultsfin<-as.numeric(x$sfin)
   
-  
-  # Save parameters 
-  xin<-data.frame(t(x$x))
-  wb<-loadWorkbook("data/Single_row.xlsx")
-  writeData(wb, "Y0", xin, startCol = 3, startRow = 2, colNames = FALSE)
-  
-  # SAve final values of state variables
-  sf<-data.frame(x$sfin)
-  writeData(wb, "Y1", sf, startCol = 3, startRow = 2, colNames = FALSE)
-  
-  # Save workbook
-  saveWorkbook(wb, "data/Single_row.xlsx", overwrite = TRUE)
+  return(results)
   
   
 }
+# )
+
+stopCluster(cl)
+
+foreach(i=1:niter) %do% {
+  m[i,]<-oper1[[i]]$resultx
+  q[i,]<-oper1[[i]]$resultsfin
+  
+}
+
+# Save parameters 
+wb<-loadWorkbook(file)
+writeData(wb, "Y", m, startCol = 3, startRow = 2, colNames = FALSE)
+
+# SAve final values of state variables
+writeData(wb, "sfin", q, startCol = 3, startRow = 2, colNames = FALSE)
+
+# Save workbook
+saveWorkbook(wb, file, overwrite = TRUE)
+
+
+
+
+
+
+
 
 
 ##-----------------------------------------------------------------
 ##- Run interventions
 ##-----------------------------------------------------------------
 # Load previously saved values to initialize State variables
-x0<-as.data.frame(read_excel("data/Single_row.xlsx", sheet = "Y0"))
-sf0<-as.data.frame(read_excel("data/Single_row.xlsx", sheet = "Y1"))
+x0<-as.data.frame(read_excel(file, sheet = "Y"))
+sf0<-as.data.frame(read_excel(file, sheet = "sfin"))
 
-for (ii in 1:nrow(fulldata)){
+
+## Loading required package: iterators
+cl <- makeCluster(10)
+registerDoParallel(cl)
+
+
+collect2 <- function(resultout=NULL)
+{
+  me <- list(
+    resultout = resultout
+  )
+  
+  # Set the name for the class
+  class(me) <- append(class(me),"collect2")
+  return(me)
+}
+
+
+
+
+
+
+# oper2<-foreach(ii = 1:niter,  .packages = c("deSolve","pracma","Matrix","readxl","Rcpp", "RcppArmadillo","abind","myTBpack") )%dopar% {
+
+
+for(ii in 1:10){
   state<-fulldata[ii,1]
+  print(state)
   district<-fulldata[ii,2]
   sfin<-list(sf0[ii,-c(1,2)])
+  # Get dto inputs
+  input_data<-fulldata[ii,-c(1,2)]
   bestset<-as.numeric(x0[ii,-c(1,2)])
   
   # Call intervention function "Simulate"
+  
   sims<-
     Simulate (
       input_data, #  District base characteristics
@@ -110,16 +188,21 @@ for (ii in 1:nrow(fulldata)){
       1,         # Confirmation by Xpert =1 ; smear =0;
       0.5       # Operational losses on expected yield
     )
-  
-  # Save results
-  tmp<-c(sims$inc_itv,sims$mort_itv,sims$ic_fl,sims$ic_sl,sims$ic_sm,sims$ic_xp,sims$ic_xr,sims$icr_all)
-  results<-data.frame(t(tmp))
-  wb<-loadWorkbook("data/Single_row.xlsx")
-  writeData(wb, "Z", results, startCol = 3, startRow = 2, colNames = FALSE)
-  saveWorkbook(wb, "data/Single_row.xlsx", overwrite = TRUE)
+  results<-collect2()
+  results$resultout <- c(sims$inc_itv,sims$mort_itv,sims$ic_fl,sims$ic_sl,sims$ic_sm,sims$ic_xp,sims$ic_xr,sims$icr_all)
+  return(results)
   
 }
 
+foreach(i=1:niter) %do% {
+  z[i,]<-oper2[[i]]$resultout
+}
 
+stopCluster(cl)
+
+
+wb<-loadWorkbook(file)
+writeData(wb, "Z", z, startCol = 3, startRow = 2, colNames = FALSE)
+saveWorkbook(wb, file, overwrite = TRUE)
 
 

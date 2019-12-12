@@ -210,12 +210,15 @@ get_input<-function(input_data){
   bds[xi$imm,]              <- c(0.25, 0.75)
   bds[xi$selfcure,]         <- c(0.1, 0.22)
   bds[xi$muTB,]             <- c(0.1, 0.22)
-  bds[xi$pu,]               <- c(0, 1)   #pu_bds
-  bds[xi$pse_base,]         <- c(0, 1)
+  bds[xi$pu,]               <- c(0.05, 0.85)   #pu_bds
+  bds[xi$pse_base,]         <- c(0.1, 0.6)
   bds[xi$Dxpu,]             <- c(0.7, 1)
   bds[xi$Txinitpu,]         <- c(0.6, 0.9)
-  bds[xi$ntpcov,]           <- c(0, 1)
-  bds[xi$cross,]            <- c(0, 1)
+  bds[xi$ntpcov,]           <- c(0.5, 0.8)
+  bds[xi$cross,]            <- c(0.2, 0.5)
+  
+
+  
   
   
   #__________________________________________________________________________
@@ -294,7 +297,7 @@ get_input<-function(input_data){
   r$wloss    <- 0.5 # Rate of 2 years fro untreated TBG to move from normal BMI to malnourished
   p$resp_symptomatic<-0.045 # Fraction Respiratoty symnptomatic (From kenya survey (eligible only by symptoms)(TB survey)
   #p$slum<-strcmp(data_raw[location,'setting'],'slum')
-  p$popN<-124233985#data_raw[location,'popN']
+  p$popN<-input_data$pop2019
   
   #intervs
   r$acf_asym<-c(0, 0)
@@ -302,7 +305,9 @@ get_input<-function(input_data){
   p$acfhi <-0.5
   p$xray_acf<-0
   p$xpert_acf<-1
-  p$acf_k<-0 # Cumulative losses
+  p$acf_linked<-0.8
+  p$acf_tx<-0.8
+  
   
   
   p$cfy_all<-0  #Switch parametyer to do contact trace
@@ -320,14 +325,14 @@ get_input<-function(input_data){
   
   # Unit costs (USD temporary costs )
   
-  p$u_smear   <-10.87               #;cost.smear=rnu(u_smear,nruns);
-  p$u_xpert   <-32.24               #cost.xpert=rnu(u_xpert,nruns);
-  p$u_dst     <-20.03               #cost.dst=rnu(u_dst,nruns);
-  p$u_xray    <-15               #cost.dst=rnu(u_dst,nruns);
-  p$u_flmo    <- 33.91              #cost.flmoadu=rnu(u_flmoadu,nruns);
-  p$u_slmo    <- 134.61             #cost.slmoadu=rnu(u_slmoadu,nruns);
-  p$u_ipt     <-52.20               #cost.ipt=rnu(u_ipt,nruns);
-  p$u_acf     <- ((30.69+1.93)) + 3 #cost.acf=rnu(u_acf,nruns);
+  p$u_smear   <-3               #;cost.smear=rnu(u_smear,nruns);
+  p$u_xpert   <-17               #cost.xpert=rnu(u_xpert,nruns);
+  p$u_dst     <-17               #cost.dst=rnu(u_dst,nruns);
+  p$u_xray    <- 3              #cost.dst=rnu(u_dst,nruns);
+  p$u_flmo    <- 10              #cost.flmoadu=rnu(u_flmoadu,nruns);
+  p$u_slmo    <- 100             #cost.slmoadu=rnu(u_slmoadu,nruns);
+  p$u_ipt     <- 20               #cost.ipt=rnu(u_ipt,nruns);
+  p$u_acf     <- 2 #cost.acf=rnu(u_acf,nruns);
   
   
   

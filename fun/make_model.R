@@ -12,7 +12,7 @@ make_model<-function(p, r, i, i_all, s, gps){
   mx <- matrix(0,i_all$nstates,i_all$nstates)
   mxr <- matrix(0,i_all$nstates,i_all$nstates)
   mac <- matrix(0,i_all$nstates,i_all$nstates)
-
+  
   
   sub2ind<-function(size,roi,coi)(coi-1)*size + roi
   
@@ -38,18 +38,20 @@ make_model<-function(p, r, i, i_all, s, gps){
       (  p$xpert_acf *(1-p$xpert_spec) +
            (1-p$xpert_acf)*(1-p$smear_spec))
     
+    acf_losses<- 1-(p$acf_linked*p$acf_tx)
+    
     
     source <- S; destin <- STxs$pu
-    rate <- p$acf_k * acf_rate * (acf_alg_xray + acf_alg_noxray)
+    rate <- acf_losses * acf_rate * (acf_alg_xray + acf_alg_noxray)
     m[destin,source] <- m[destin,source] + rate
     
     
     #-------------Count Dx
     acf_xprt_no <- acf_rate * (p$xray_acf * (1-p$xray_spec) * p$xpert_acf +
-                            (1-p$xray_acf)* p$xpert_acf)
+                                 (1-p$xray_acf)* p$xpert_acf)
     
     acf_smr_no  <- acf_rate * (p$xray_acf * (1-p$xray_spec) * (1-p$xpert_acf) +
-                            (1-p$xray_acf)* (1-p$xpert_acf))
+                                 (1-p$xray_acf)* (1-p$xpert_acf))
     
     acf_xray_no <- acf_rate * p$xray_acf
     
@@ -87,10 +89,10 @@ make_model<-function(p, r, i, i_all, s, gps){
       prov <- gps$sectors[ip]
       SDx <- SDxs[[prov]];  STx <- STxs[[prov]]
       
-     
+      
       ispu<-strcmp(prov, 'pu')
       
-     
+      
       
       
       
@@ -122,17 +124,17 @@ make_model<-function(p, r, i, i_all, s, gps){
       
       # Count units in public/ pse
       if (ip !=2){
-      
-      pas_xprt_no <- r$Dx * p$Dx[ip] * p$xpert_upf[ip]
-      pas_smr_no  <- r$Dx * p$Dx[ip] * (ispu) * (1-p$xpert_upf[ip])
-      
-      
-      source <- SDx; destin<-STx
-      rate<-  pas_xprt_no
-      mx[destin,source] <- mx[destin,source] + rate
-      
-      rate <- pas_smr_no
-      ms[destin,source] <- ms[destin,source] + rate
+        
+        pas_xprt_no <- r$Dx * p$Dx[ip] * p$xpert_upf[ip]
+        pas_smr_no  <- r$Dx * p$Dx[ip] * (ispu) * (1-p$xpert_upf[ip])
+        
+        
+        source <- SDx; destin<-STx
+        rate<-  pas_xprt_no
+        mx[destin,source] <- mx[destin,source] + rate
+        
+        rate <- pas_smr_no
+        ms[destin,source] <- ms[destin,source] + rate
       }
       
     }
@@ -197,7 +199,7 @@ make_model<-function(p, r, i, i_all, s, gps){
       source <- Ia; destin <- Is; rate <- r$symp_del
       m[destin, source] <- m[destin, source] + rate
       
-     
+      
       #Systematic screening in the community (Asymptomatic)
       #Note: all transitions in mac, mx, ms matrices are for
       #counting events for the costing model and have no effect in
@@ -211,21 +213,23 @@ make_model<-function(p, r, i, i_all, s, gps){
       
       
       acf_alg_xray <-p$xray_acf * p$xray_sens * 
-                (  p$xpert_acf *  p$xpert_sens  +
-                (1-p$xpert_acf)*  p$smear_sens)
+        (  p$xpert_acf *  p$xpert_sens  +
+             (1-p$xpert_acf)*  p$smear_sens)
       
       acf_alg_noxray <- (1-p$xray_acf)  * 
-                (  p$xpert_acf  * p$xpert_sens  +
-                (1-p$xpert_acf) * p$smear_sens)
+        (  p$xpert_acf  * p$xpert_sens  +
+             (1-p$xpert_acf) * p$smear_sens)
+      
+      acf_losses<- 1-(p$acf_linked*p$acf_tx)
       
       
       source <- Ia; destin <- Txs$pu
-      rate <- p$acf_k   * acf_rate_asy * (1-ismdr) *(acf_alg_xray)
+      rate <- acf_losses   * acf_rate_asy * (1-ismdr) *(acf_alg_xray)
       m[destin, source] <- m[destin, source] + rate
       
       source <- Ia; destin <- Tx2s$pu
-      rate  <-  p$acf_k   * acf_rate_asy * ismdr * 
-                p$xray_acf * p$xray_sens * p$xpert_acf *  p$xpert_sens
+      rate  <-  acf_losses   * acf_rate_asy * ismdr * 
+        p$xray_acf * p$xray_sens * p$xpert_acf *  p$xpert_sens
       
       m[destin, source] <- m[destin, source] + rate
       
@@ -234,11 +238,11 @@ make_model<-function(p, r, i, i_all, s, gps){
       
       #-------------Count Dx
       acf_xprt_no <- acf_rate_asy * (p$xray_acf * p$xray_sens * p$xpert_acf  +
-                                  (1-p$xray_acf)* p$xpert_acf)
+                                       (1-p$xray_acf)* p$xpert_acf)
       
       acf_smr_no  <- acf_rate_asy * (p$xray_acf * p$xray_sens *  (1-p$xpert_acf) +
-                              (1-p$xray_acf)* (1-p$xpert_acf))
-     
+                                       (1-p$xray_acf)* (1-p$xpert_acf))
+      
       acf_no <- acf_rate_asy
       
       source <- Ia; destin <- Txs$pu
@@ -259,27 +263,27 @@ make_model<-function(p, r, i, i_all, s, gps){
       rate <- (ismdr)* acf_xprt_no
       mx[destin, source] <- mx[destin, source] + rate
       
-
+      
       
       
       #Systematic screening in the community (only symptomatic)
       source <- Is; destin <- Txs$pu
-      rate <- p$acf_k   * acf_rate_sy * (1-ismdr) *(acf_alg_xray + acf_alg_noxray)
+      rate <- acf_losses   * acf_rate_sy * (1-ismdr) *(acf_alg_xray + acf_alg_noxray)
       m[destin, source] <- m[destin, source] + rate
       
       source <- Is; destin <- Tx2s$pu
-      rate  <-  p$acf_k   * acf_rate_sy * ismdr * 
+      rate  <-  acf_losses   * acf_rate_sy * ismdr * 
         (p$xray_acf * p$xray_sens * p$xpert_acf *  p$xpert_sens+
-      (1-p$xray_acf)* p$xpert_acf *  p$xpert_sens)
+           (1-p$xray_acf)* p$xpert_acf *  p$xpert_sens)
       m[destin, source] <- m[destin, source] + rate
       
       
       source <- E; destin <- Txs$pu
-      rate <- p$acf_k   * acf_rate_sy * (1-ismdr) *(acf_alg_xray + acf_alg_noxray)
+      rate <- acf_losses   * acf_rate_sy * (1-ismdr) *(acf_alg_xray + acf_alg_noxray)
       m[destin, source] <- m[destin, source] + rate
       
       source <- E; destin <- Tx2s$pu
-      rate  <-  p$acf_k   * acf_rate_sy * ismdr * 
+      rate  <-  acf_losses   * acf_rate_sy * ismdr * 
         (p$xray_acf * p$xray_sens * p$xpert_acf *  p$xpert_sens+
            (1-p$xray_acf)* p$xpert_acf *  p$xpert_sens)
       m[destin, source] <- m[destin, source] + rate
@@ -287,10 +291,10 @@ make_model<-function(p, r, i, i_all, s, gps){
       
       #-------------Count Dx
       acf_xprt_no <- acf_rate_sy * (p$xray_acf * p$xray_sens * p$xpert_acf  +
-                                       (1-p$xray_acf)* p$xpert_acf)
+                                      (1-p$xray_acf)* p$xpert_acf)
       
       acf_smr_no  <- acf_rate_sy * (p$xray_acf * p$xray_sens *  (1-p$xpert_acf) +
-                                       (1-p$xray_acf)* (1-p$xpert_acf))
+                                      (1-p$xray_acf)* (1-p$xpert_acf))
       
       
       acf_no <- acf_rate_asy
@@ -315,7 +319,7 @@ make_model<-function(p, r, i, i_all, s, gps){
       rate <- (1-ismdr)* acf_smr_no
       ms[destin, source] <- ms[destin, source] + rate
       
-            
+      
       source <- Is; destin <- Tx2s$pu
       rate <- acf_no*(ismdr)
       mac[destin, source] <- mac[destin, source] + rate
@@ -357,7 +361,7 @@ make_model<-function(p, r, i, i_all, s, gps){
           (ismdr  *   (ispu) * (1-p$xpert_upf[ip]) * p$smear_sens* p$xpert_fup[ip] * p$xpert_sens)
         
         
-           
+        
         p_ltfu  <- 1-(Dx_alg_fl+Dx_alg_sl)
         
         #--- Diagnosis
@@ -413,7 +417,7 @@ make_model<-function(p, r, i, i_all, s, gps){
           rates   <- pas_smr_no
           ms[destins,source] <- ms[destins,source] + rates
         }
-       
+        
         
         
         
@@ -458,7 +462,7 @@ make_model<-function(p, r, i, i_all, s, gps){
   M$sm<-ms - diag(colSums(ms))
   M$xr<-ms - diag(colSums(mxr))
   M$mac<-mac -diag(colSums(mac))
-
+  
   # --- Get nonlinear rates of TB transmission
   M$nlin<-list()
   

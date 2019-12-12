@@ -34,13 +34,15 @@ Calibration <- function(input_data , # Vector with data targets points, in this 
   #__________________________________________________________________________
   #  Create instances of model functions
   #__________________________________________________________________________
+  
+  avgpar<-colSums(prm$bds)/2
+  ratio<-avgpar[1]/avgpar
+  ratio<-ratio*200
+  
   #Function handle for returning output
   obj       <-  function(x)
     get_objective(x, prm, ref, sel, agg, gps, target_data, FALSE)
   
-  #Function handle for calibration with simplex
-  obj_spx   <-  function(x)
-     get_objective(x, prm, ref, sel, agg, gps, target_data)
   
   
   #Random draw of parameters: pick a parameter set starting point randomly
@@ -53,9 +55,9 @@ Calibration <- function(input_data , # Vector with data targets points, in this 
   
   # If a previous best parameter set exists, use it as starting point
   #otherwise, use a random start 
-  dat<-as.data.frame(read_excel("data/start_parameters.xlsx"))
+  dat<-as.data.frame(read_excel("data/district_data.xlsx",sheet = "Y"))
   tmp<- dat[dat$state== state & dat$district == district,  ]
-    if (tmp$beta != -99) {
+  if (tmp$beta != -99) {
     x0 <- as.numeric(tmp[c(3:length(tmp))])
   } else{
     x0 <- xu
@@ -65,12 +67,59 @@ Calibration <- function(input_data , # Vector with data targets points, in this 
   #__________________________________________________________________________
   #  Execute calibration
   #__________________________________________________________________________
+  
+  # Function handle for calibration with simplex
+  obj_spx   <-  function(x)
+    get_objective(x/ratio, prm, ref, sel, agg, gps, target_data)
+
   fminsearch <- neldermead::fminsearch
-  opt <- optimset(TolX = 1.e-2, MaxIter=10, Display = "iter")
-  x1 <- fminsearch(fun = obj_spx,
-                   x0,
+  fminbnd<-neldermead::fminbnd
+  # opt <- optimset(TolX = 2.e-2, TolFun=0.1 ,MaxIter=100, Display = "iter")
+  opt <- optimset(TolFun=1e-2,TolX=1e-2,MaxIter=200, Display = "iter")
+
+  x1 <- fminbnd(fun = obj_spx,
+                   x0*ratio,
+                   xmin=prm$bds[1,]*ratio,
+                   xmax=prm$bds[2,]*ratio,
                    options = opt)
-  x  <- x1$optbase$xopt
+
+
+  x  <- x1$optbase$xopt/ratio
+  
+  #__________________________________________________________________________
+  #  Execute calibration
+  #   #__________________________________________________________________________
+
+  # # Function handle for calibration with simplex
+  # obj_spx   <-  function(x)
+  #   get_objective(x, prm, ref, sel, agg, gps, target_data)
+  # 
+  #  x1 <- optim(x0,obj_spx, 
+  #              method='L-BFGS-B',
+  #              lower=prm$bds[1,],
+  #              upper=prm$bds[2,],
+  #             control = list(maxit = 100,
+  #                            trace=TRUE,
+  #                            parscale = ratio))
+  # x  <- x1$par
+  #__________________________________________________________________________
+  #  Execute calibration
+  #   #__________________________________________________________________________
+  # obj_spx   <-  function(x)
+  # get_objective(x/ratio, prm, ref, sel, agg, gps, target_data)
+  # 
+  # system.time(
+  # x1 <- nlm (obj_spx,x0*ratio,
+  #            steptol=1e-2,
+  #            gradtol=1e-2,
+  #            iterlim=100,
+  #            print.level=1,
+  #            fscale=0)
+  # )
+  # 
+  # x  <- x1$estimate/ratio
+  # 
+  #   browser()
   
   #save best parameter set in folder../res
   # file <-

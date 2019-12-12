@@ -38,7 +38,7 @@ fulldata      <-as.data.frame(read_excel("data/Single_row.xlsx"))
 ##-----------------------------------------------------------------
 ## 1) Run calibrations
 ##-----------------------------------------------------------------
-
+system.time(
 for (ii in 1:nrow(fulldata)){
   
   # Get state and district
@@ -63,7 +63,7 @@ for (ii in 1:nrow(fulldata)){
   saveWorkbook(wb, "data/Single_row.xlsx", overwrite = TRUE)
   
 }
-
+)
 
 ##-----------------------------------------------------------------
 ##- 2) Run interventions
@@ -100,7 +100,8 @@ for (ii in 1:nrow(fulldata)){
       0.2,       # Prportion of slum population reached
       0,         # ACF screening by Xray =1 ; Verbally =0;
       1,         # Confirmation by Xpert =1 ; smear =0;
-      0.5       # Operational losses on expected yield
+      0.8,       # proportion ACF linked to testing
+      0.8        # proportion ACF linked to tx 
     )
   
   # Save results (Z)
