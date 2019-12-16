@@ -68,40 +68,39 @@ Calibration <- function(input_data , # Vector with data targets points, in this 
   #  Execute calibration
   #__________________________________________________________________________
   
-  # Function handle for calibration with simplex
-  obj_spx   <-  function(x)
-    get_objective(x/ratio, prm, ref, sel, agg, gps, target_data)
-
-  fminsearch <- neldermead::fminsearch
-  fminbnd<-neldermead::fminbnd
-  # opt <- optimset(TolX = 2.e-2, TolFun=0.1 ,MaxIter=100, Display = "iter")
-  opt <- optimset(TolFun=1e-2,TolX=1e-2,MaxIter=200, Display = "iter")
-
-  x1 <- fminbnd(fun = obj_spx,
-                   x0*ratio,
-                   xmin=prm$bds[1,]*ratio,
-                   xmax=prm$bds[2,]*ratio,
-                   options = opt)
-
-
-  x  <- x1$optbase$xopt/ratio
+  # # Function handle for calibration with simplex
+  # obj_spx   <-  function(x)
+  #   get_objective(x/ratio, prm, ref, sel, agg, gps, target_data)
+  # 
+  # fminsearch <- neldermead::fminsearch
+  # fminbnd<-neldermead::fminbnd
+  # # opt <- optimset(TolX = 2.e-2, TolFun=0.1 ,MaxIter=100, Display = "iter")
+  # opt <- optimset(TolFun=1e-2,TolX=1e-2,MaxIter=200, Display = "off")
+  # 
+  # x1 <- fminbnd(fun = obj_spx,
+  #                  x0*ratio,
+  #                  xmin=prm$bds[1,]*ratio,
+  #                  xmax=prm$bds[2,]*ratio,
+  #                  options = opt)
+  # 
+  # 
+  # x  <- x1$optbase$xopt/ratio
   
   #__________________________________________________________________________
   #  Execute calibration
   #   #__________________________________________________________________________
 
-  # # Function handle for calibration with simplex
-  # obj_spx   <-  function(x)
-  #   get_objective(x, prm, ref, sel, agg, gps, target_data)
-  # 
-  #  x1 <- optim(x0,obj_spx, 
-  #              method='L-BFGS-B',
-  #              lower=prm$bds[1,],
-  #              upper=prm$bds[2,],
-  #             control = list(maxit = 100,
-  #                            trace=TRUE,
-  #                            parscale = ratio))
-  # x  <- x1$par
+  # Function handle for calibration with simplex
+  obj_spx   <-  function(x)
+    get_objective(x, prm, ref, sel, agg, gps, target_data)
+
+   x1 <- optim(x0,obj_spx,
+              control = list(maxit = 300,
+                             trace=TRUE,
+                             reltol=1e-2,
+                             abstol=0.1,
+                             parscale = ratio))
+  x  <- x1$par
   #__________________________________________________________________________
   #  Execute calibration
   #   #__________________________________________________________________________

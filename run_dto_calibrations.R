@@ -29,17 +29,19 @@ sourceCpp("fun/scale_matrix.cpp")
 #__________________________________________________________________________
 #  Load data 
 #__________________________________________________________________________
+file <-"data/district_data.xlsx"
 
 # Load Data : This is required for calibration and simulation steps
-fulldata      <-as.data.frame(read_excel("data/Single_row.xlsx"))
+fulldata      <-as.data.frame(read_excel(file))
+niter<-nrow(fulldata)
 
 
 
 ##-----------------------------------------------------------------
 ## 1) Run calibrations
 ##-----------------------------------------------------------------
-system.time(
-for (ii in 1:nrow(fulldata)){
+
+for (ii in 1:niter){
   
   # Get state and district
   state<-fulldata[ii,1]
@@ -56,24 +58,24 @@ for (ii in 1:nrow(fulldata)){
   
   # Save parameters 
   Y1<-data.frame(t(C$x))
-  wb<-loadWorkbook("data/Single_row.xlsx")
+  wb<-loadWorkbook(file)
   writeData(wb, "Y", Y1, startCol = 3, startRow = 2, colNames = FALSE)
   
   # Save workbook
-  saveWorkbook(wb, "data/Single_row.xlsx", overwrite = TRUE)
+  saveWorkbook(wb, file, overwrite = TRUE)
   
 }
-)
+
 
 ##-----------------------------------------------------------------
 ##- 2) Run interventions
 ##-----------------------------------------------------------------
 # Load previously saved values (Y) to initialize State variables
-Y<-as.data.frame(read_excel("data/Single_row.xlsx", sheet = "Y"))
+Y<-as.data.frame(read_excel(file, sheet = "Y"))
 
-for (ii in 1:nrow(fulldata)){
-  state<-fulldata[ii,1]
-  district<-fulldata[ii,2]
+for (ii in 1:niter){
+
+  
   Y1<-as.numeric(Y[ii,-c(1,2)])
   
   # Get dto inputs
@@ -84,32 +86,46 @@ for (ii in 1:nrow(fulldata)){
     Simulate (
       X, #  District base characteristics
       Y1,   # set of best fit parameters
-      c(),       # Values to initialise State Variables (leave empty-optional) 
-      
+  
       # ALL Values belwo correspont to I
-      0.95,      # FL completion rates
-      0.75,      # SL completion rates
-      0.5,       # probability xpert upfront
-      0.95,      # probability xpert follow-up
-      0.95,      # fraction of private providers engaged
-      0.8,       # proibability of siagnosis in engaged providers
-      0.8,       # prob of xpert in engaged providers
-      1,         # 0.1 for childen, 1 for al population
-      4,         # number of household contacts to e screened
-      0.6,       # Expected completion rates
-      0.2,       # Prportion of slum population reached
-      0,         # ACF screening by Xray =1 ; Verbally =0;
-      1,         # Confirmation by Xpert =1 ; smear =0;
-      0.8,       # proportion ACF linked to testing
-      0.8        # proportion ACF linked to tx 
+      0.95,      # Target for first-line treatment success
+     
+      0.75,      # Target for second-line treatment success
+      
+      0.5,       # 1-Proportion of diagnoses being done by CB-NAAT vs smear (see change in order vs.) 
+      0.95,      # Proportion of diagnoses having DST result within two weeks of diagnosis
+      
+      0.95,      # Target proportion of private providers to be engaged
+      0.8,       # Proportion of diagnoses using Xpert in private engaged
+      0.85,      # Target treatment outcome in privatre engaged
+      
+      1,          #Population  (< 5 only or all household contacts):  0.1 for childen, 1 for al population
+      4,         # Number of contacts envisaged to be screened per index case
+      0.6,       # Anticipated regimen completion rates
+      
+      0.2,       # Proportion of risk group to be screened per year
+      0,         # Screening algorithm (verbally, or also with X-ray):  Xray =1 ; Verbally =0;
+      1,         # Confirmatory test (smear or Xpert): Xpert =1 ; Smear =0;
+      0.8,       # Proportion of presumptives successfully linked to microbiological testing’
+      0.8        # Proportion of diagnosed cases successfully initiating treatment 
     )
   
   # Save results (Z)
-  tmp<-c(sims$inc_itv,sims$mort_itv,sims$ic_fl,sims$ic_sl,sims$ic_sm,sims$ic_xp,sims$ic_xr,sims$icr_all)
+  tmp<-c(sims$inc_itv,
+         sims$mort_itv,
+         sims$ic_fl,
+         sims$ic_sl,
+         sims$ic_sm,
+         sims$ic_xp,
+         sims$ic_xr,
+         sims$icr_all,
+         sims$inc_av_n,
+         sims$mort_av_n)
+  
   Z<-data.frame(t(tmp))
-  wb<-loadWorkbook("data/Single_row.xlsx")
+  wb<-loadWorkbook(file)
   writeData(wb, "Z", Z, startCol = 3, startRow = 2, colNames = FALSE)
-  saveWorkbook(wb, "data/Single_row.xlsx", overwrite = TRUE)
+  saveWorkbook(wb, file, overwrite = TRUE)
   
 }
 

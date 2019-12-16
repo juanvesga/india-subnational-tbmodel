@@ -1,22 +1,24 @@
 
-Simulate <- function(input_data,# characteristics of the district 
-                     params,    # set of best fit parameters
-                     sfin,      # Values to initialise State Variables 
-                     pdef,      # FL completion rates
-                     pdef2,     # SL completion rates
-                     xpert_uf,  # probability xpert upfront
-                     xpert_fu,  # probability xpert follow-up
-                     pse,       # fraction of private providers engaged
-                     pDx_pe,    # proibability of siagnosis in engaged providers
-                     xpert_fu_pe, # prob of xpert in engaged providers
-                     ptreach,   # 0.1 for childen, 1 for al population
-                     hcscreen,  # number of household contacts to e screened
-                     ptdef,     # Expected completion rates
-                     acfhi,     # Prportion of slum population reached
-                     xray_acf,  # ACF screening by Xray =1 ; Verbally =0;
-                     xpert_acf, # Confirmation by Xpert =1 ; smear =0;
-                     acf_linked,  # Operational losses on expected yield
-                     acf_tx  # Operational losses on expected yield
+Simulate <- function(input_data,  # characteristics of the district 
+                     params,      # set of best fit parameters
+                     tx_out_fl,   # Target for first-line treatment success
+                     tx_out_sl,   # Target for second-line treatment success
+                     xpert_uf,    # 1-Proportion of diagnoses being done by CB-NAAT vs smear (see change in order vs.) 
+                     xpert_fu,    # Proportion of diagnoses having DST result within two weeks of diagnosis
+                     
+                     pse,         # Target proportion of private providers to be engaged
+                     xpert_pe,    # Proportion of diagnoses using Xpert in private engaged
+                     tx_out_pe,   # Target treatment outcome in privatre engaged
+                     
+                     ptreach,     # Population  (< 5 only or all household contacts):  0.1 for childen, 1 for al population
+                     hcscreen,    # Number of contacts envisaged to be screened per index case
+                     ptdef,       # Anticipated regimen completion rates
+                     
+                     acfhi,       # Proportion of risk group to be screened per year
+                     xray_acf,    # Screening algorithm (verbally, or also with X-ray):  Xray =1 ; Verbally =0;
+                     xpert_acf,   # Confirmatory test (smear or Xpert): Xpert =1 ; Smear =0;
+                     acf_linked,  # Proportion of presumptives successfully linked to microbiological testing’
+                     acf_tx       # Proportion of diagnosed cases successfully initiating treatment 
 ) {
   
 
@@ -26,10 +28,10 @@ Simulate <- function(input_data,# characteristics of the district
   
   itv <- list()
   #---------- 1)  Improve first-line treatment outcomes
-  itv$pdef <- 1-pdef
+  itv$pdef <- 1-tx_out_fl
   
   #---------- 2) Improve second-line treatment outcomes
-  itv$pdef2 <- 1-pdef2
+  itv$pdef2 <- 1-tx_out_sl
   
   #---------- 3) Universal DST in routine, public TB services
   # Increase probability of being diagnosed with xpert up front
@@ -43,9 +45,9 @@ Simulate <- function(input_data,# characteristics of the district
   #---------- 4) Private sector engagement
   # Engae a fraction of the private providers
   # and improve probability of Dx
-  itv$pse <- pse
-  itv$pDx_pe <- pDx_pe
-  itv$xpert_fu_pe <- xpert_fu_pe
+  itv$pse     <- pse
+  itv$xpert_pe<- xpert_pe
+  itv$pdef_pe  <- 1-tx_out_pe
   
   # ----------5)Preventive therapy amongst household contacts
   itv$ptreach  <- ptreach    # 0.1 for childen, 1 for al population
@@ -75,31 +77,9 @@ Simulate <- function(input_data,# characteristics of the district
   #__________________________________________________________________________
   #  Execute simulation of intervention
   #__________________________________________________________________________
-  itvs <-sim_pack_intervention(params, sfin, prm, ref, sel, agg, gps, c())
-  
-  # save results
-  # file <- paste("res/", "sim", "_", district,sep ="")
-  # saveRDS(itvs, file) 
+  itvs <-sim_pack_intervention(params, prm, ref, sel, agg, gps)
   
   
-  #Print out results
-  # yrs<-c(2018:2025)
-  # incidence=itvs$inc
-  # mortality=itvs$mort
-  # out1<-as.data.frame(cbind(yrs,incidence,mortality))
-  # print(out1)
-  # 
-  # icr_fl<-itvs$ic_fl
-  # icr_sl<-itvs$ic_sl
-  # icr_sm<-itvs$ic_sm
-  # icr_xpert<-itvs$ic_xp
-  # icr_xray<-itvs$ic_xr
-  # icr_total<-itvs$icr_all
-  # 
-  # out2<-as.data.frame(cbind(icr_fl,icr_sl,icr_sm,icr_xpert,icr_xray,icr_total))
-  # print(out2)
-  # 
-  # return object with simulation output
   return(itvs) 
   
 }

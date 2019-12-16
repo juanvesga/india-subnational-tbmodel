@@ -19,7 +19,7 @@ get_objective <- function (x, prm, ref, sel, agg, gps, data, LLK=TRUE){
   
   if ((min(tmp)<0)==TRUE){
     #   
-    llk<- Inf
+    llk<- NA
     return(llk)
     #   
   }
@@ -182,12 +182,12 @@ get_objective <- function (x, prm, ref, sel, agg, gps, data, LLK=TRUE){
   # 
   # llksum<-sum(llk)
   
-  if (is.na(llksum)){
-    llksum<- Inf
-  }
+  # if (is.na(llksum)){
+  #   llksum<- NA
+  # }
+  # 
   
-  
-  
+  #  Choos output from this function : If LLK=TRUE only LLK otherwise model output
   
   if (LLK){ 
     
