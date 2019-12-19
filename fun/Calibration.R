@@ -74,8 +74,8 @@ Calibration <- function(input_data , # Vector with data targets points, in this 
   # 
   # fminsearch <- neldermead::fminsearch
   # fminbnd<-neldermead::fminbnd
-  # # opt <- optimset(TolX = 2.e-2, TolFun=0.1 ,MaxIter=100, Display = "iter")
-  # opt <- optimset(TolFun=1e-2,TolX=1e-2,MaxIter=200, Display = "off")
+  # # opt <- optimset(TolX = 1.e-2, TolFun=0.1 ,MaxIter=100, Display = "iter")
+  # opt <- optimset(TolFun=1e-2,TolX=1e-2,MaxIter=200, Display = "iter")
   # 
   # x1 <- fminbnd(fun = obj_spx,
   #                  x0*ratio,
@@ -101,7 +101,7 @@ Calibration <- function(input_data , # Vector with data targets points, in this 
                              abstol=0.1,
                              parscale = ratio))
   x  <- x1$par
-  #__________________________________________________________________________
+  # #__________________________________________________________________________
   #  Execute calibration
   #   #__________________________________________________________________________
   # obj_spx   <-  function(x)
