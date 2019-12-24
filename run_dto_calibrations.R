@@ -100,13 +100,15 @@ sims<-
     
     0.2,       # Proportion of risk group to be screened per year
     0,         # Screening algorithm (verbally, or also with X-ray):  Xray =1 ; Verbally =0;
-    1,         # Confirmatory test (smear or Xpert): Xpert =1 ; Smear =0;
+    0,         # Confirmatory test (smear or Xpert): Xpert =1 ; Smear =0;
     0.8,       # Proportion of presumptives successfully linked to microbiological testing’
     0.8        # Proportion of diagnosed cases successfully initiating treatment 
   )
 
 # Save results (Z)
-tmp<-c(sims$inc_itv,
+tmp<-c(sims$inc_base,
+       sims$mort_base,
+       sims$inc_itv,
        sims$mort_itv,
        sims$ic_fl,
        sims$ic_sl,
@@ -119,7 +121,10 @@ tmp<-c(sims$inc_itv,
 
 Z<-data.frame(t(tmp))
 wb<-loadWorkbook(file)
-writeData(wb, "Z", Z, startCol = 3, startRow = 2, colNames = FALSE)
+
+id<-which(fulldata$state== state & fulldata$district == district)
+
+writeData(wb, "Z", Z, startCol = 3, startRow = id+1, colNames = FALSE)
 saveWorkbook(wb, file, overwrite = TRUE)
 
 

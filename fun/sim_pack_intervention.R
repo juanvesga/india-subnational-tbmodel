@@ -144,12 +144,12 @@ sim_pack_intervention <-
     #Dx (semar, xpert, xray)
     smear_n <- diff(allsol[, i$aux$dx[1], ]) * p$popN
     xpert_n <- diff(allsol[, i$aux$dx[2], ]) * p$popN
-    xray_n <- diff(allsol[, i$aux$dx[2], ]) * p$popN
+    xray_n <- diff(allsol[, i$aux$dx[3], ]) * p$popN
     acf_n <- diff(allsol[, i$aux$acf[1], ]) * p$popN
     fl_pmo <- diff(allsol[, i$aux$pmo[1], ]) * p$popN * 12
     sl_pmo <- diff(allsol[, i$aux$pmo[2], ]) * p$popN * 12
     
-    
+  
   
     tmp <- colSums(smear_n)
     incr_sm <- (tmp[2] - tmp[1]) * p$u_smear

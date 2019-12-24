@@ -162,11 +162,11 @@ get_input<-function(input_data){
   
   # Selector for ACF 
   tmp <- matrix(0,1,ref_all$i$nstates)
-  tmp[1,c(ref_all$s$S, ref$s$Ia, ref$s$Is, ref$s$E)] <- 1
+  tmp[1,c(ref$s$notbtreated_pay,ref$s$treated_pay)] <- 1
   agg$acf <-tmp
   
   tmp <-matrix(0,ref_all$i$nstates,ref_all$i$nstates)
-  tmp[c(ref$s$notbtreated_pay,ref$s$treated_pay), ]<- 1
+  tmp[c(ref_all$s$STx,ref$s$Tx,ref$s$Tx2),c(ref_all$s$S, ref$s$Ia, ref$s$Is, ref$s$E) ]<- 1
   tmp<-tmp*check
   sel$acf <-tmp - diag(diag(tmp))
   
